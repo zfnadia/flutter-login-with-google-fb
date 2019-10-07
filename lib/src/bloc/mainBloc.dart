@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -60,16 +62,12 @@ class MainBloc extends BlocBase {
             final FirebaseUser user =
                 (await _authForFB.signInWithCredential(facebookAuthCred)).user;
             print("User FB : ${user.toString()}");
-            assert(user.displayName != null);
-            assert(user.providerData[1].email != null);
-            assert(!user.isAnonymous);
-            assert(await user.getIdToken() != null);
+
             currentUser = await _authForFB.currentUser();
-            assert(user.uid == currentUser.uid);
-            sinkUserName(user.displayName);
-            sinkEmailAddress(user.providerData[1].email);
-            sinkSocialMediaId(user.uid);
-            sinkPhotoURL(user.photoUrl);
+            sinkUserName(Platform.isIOS ? user.providerData[0].displayName : user.providerData[1].displayName);
+            sinkEmailAddress(Platform.isIOS ? user.providerData[0].email : user.providerData[1].email);
+            sinkSocialMediaId(Platform.isIOS ? user.providerData[0].uid : user.providerData[1].uid);
+            sinkPhotoURL(Platform.isIOS ? user.providerData[0].photoUrl : user.providerData[1].photoUrl);
             sinkFbLoginStatus(facebookLoginResult.status);
             sinkDataState(true);
             break;
@@ -93,20 +91,11 @@ class MainBloc extends BlocBase {
               (await _auth.signInWithCredential(googleAuthCred)).user;
           print('DATA FROM GOOGLE ${user.toString()}');
 
-          assert(user.displayName != null);
-          assert(user.providerData[1].email != null);
-          assert(user.uid != null);
-          assert(user.photoUrl != null);
-
-          assert(!user.isAnonymous);
-          assert(await user.getIdToken() != null);
-
           final FirebaseUser currentUser = await _auth.currentUser();
-          assert(user.uid == currentUser.uid);
-          sinkUserName(user.displayName);
-          sinkEmailAddress(user.providerData[1].email);
-          sinkSocialMediaId(user.uid);
-          sinkPhotoURL(user.photoUrl);
+          sinkUserName(Platform.isIOS ? user.providerData[0].displayName : user.providerData[1].displayName);
+          sinkEmailAddress(Platform.isIOS ? user.providerData[0].email : user.providerData[1].email);
+          sinkSocialMediaId(Platform.isIOS ? user.providerData[0].uid : user.providerData[1].uid);
+          sinkPhotoURL(Platform.isIOS ? user.providerData[0].photoUrl : user.providerData[1].photoUrl);
           sinkDataState(true);
         } catch (error) {
           print(error);
